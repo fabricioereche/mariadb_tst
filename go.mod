@@ -7,4 +7,4 @@ require (
 	github.com/gorilla/mux v1.8.0
 )
 
-require github.com/codegangsta/negroni v1.0.0 // indirect
+require github.com/codegangsta/negroni v1.0.0

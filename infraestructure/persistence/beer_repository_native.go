@@ -1,12 +1,25 @@
-package beer
+package persistence
 
 import (
+	"database/sql"
 	"fmt"
+
+	"github.com/fabricioereche/mariadb_tst/core/beer"
 )
 
-func (s *Contract) GetAll() ([]*Beer, error) {
+type repository struct {
+	DB *sql.DB
+}
 
-	var result []*Beer
+func NewRepository(db *sql.DB) *repository {
+	return &repository{
+		DB: db,
+	}
+}
+
+func (s *repository) GetAll() ([]*beer.Beer, error) {
+
+	var result []*beer.Beer
 
 	rows, err := s.DB.Query("select id, name, type, style from beer")
 
@@ -16,7 +29,7 @@ func (s *Contract) GetAll() ([]*Beer, error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		var b Beer
+		var b beer.Beer
 		err = rows.Scan(&b.ID, &b.Name, &b.Type, &b.Style)
 		if err != nil {
 			return nil, err
@@ -27,9 +40,9 @@ func (s *Contract) GetAll() ([]*Beer, error) {
 	return result, nil
 }
 
-func (s *Contract) Get(ID int64) (*Beer, error) {
+func (s *repository) Get(ID int64) (*beer.Beer, error) {
 
-	var b Beer
+	var b beer.Beer
 
 	stmt, err := s.DB.Prepare("select id, name, type, style from beer where id = ?")
 	if err != nil {
@@ -44,7 +57,7 @@ func (s *Contract) Get(ID int64) (*Beer, error) {
 	return &b, nil
 }
 
-func (s *Contract) Store(b *Beer) error {
+func (s *repository) Store(b *beer.Beer) error {
 	tx, err := s.DB.Begin()
 	if err != nil {
 		return err
@@ -62,7 +75,7 @@ func (s *Contract) Store(b *Beer) error {
 	tx.Commit()
 	return nil
 }
-func (s *Contract) Update(b *Beer) error {
+func (s *repository) Update(b *beer.Beer) error {
 	if b.ID == 0 {
 		return fmt.Errorf("invalid ID")
 	}
@@ -84,7 +97,7 @@ func (s *Contract) Update(b *Beer) error {
 	tx.Commit()
 	return nil
 }
-func (s *Contract) Remove(ID int64) error {
+func (s *repository) Remove(ID int64) error {
 	if ID == 0 {
 		return fmt.Errorf("invalid ID")
 	}

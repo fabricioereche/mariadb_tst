@@ -19,7 +19,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	service := beer.NewContract(db)
+	repository := persistence.NewRepository(db)
+	service := beer.NewService(repository)
 	r := mux.NewRouter()
 	n := negroni.New(negroni.NewLogger())
 

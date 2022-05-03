@@ -10,6 +10,7 @@ import (
 	"github.com/fabricioereche/mariadb_tst/cmd/web/handlers"
 	"github.com/fabricioereche/mariadb_tst/core/beer"
 	"github.com/fabricioereche/mariadb_tst/infraestructure/persistence"
+	"github.com/fabricioereche/mariadb_tst/infraestructure/persistence/repository"
 	"github.com/gorilla/mux"
 )
 
@@ -19,7 +20,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	repository := persistence.NewRepository(db)
+	repository := repository.NewRepository(db)
 	service := beer.NewService(repository)
 	r := mux.NewRouter()
 	n := negroni.New(negroni.NewLogger())

@@ -1,0 +1,2 @@
+migrate:
+    migrate -database mysql://$(USER):$(PASS)@/test_db -path ./migrations up

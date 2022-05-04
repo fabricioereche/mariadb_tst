@@ -37,6 +37,11 @@ func (s *repository) GetAll() ([]*beer.Beer, error) {
 
 		result = append(result, &b)
 	}
+
+	if result == nil {
+		result = make([]*beer.Beer, 0)
+	}
+
 	return result, nil
 }
 

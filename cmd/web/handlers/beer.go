@@ -149,7 +149,41 @@ curl -X "PUT" "http://localhost:4000/v1/beer/2" \
 */
 func updateBeer(service beer.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//@TODO exercício: implementar este handler
+
+		//vamos pegar o ID da URL
+		//na definição do protocolo http, os parâmetros são enviados no formato de texto
+		//por isso precisamos converter em int64
+		vars := mux.Vars(r)
+		id, err := strconv.ParseInt(vars["id"], 10, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(formatJSONError(err.Error()))
+			return
+		}
+		b, err := service.Get(id)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write(formatJSONError(err.Error()))
+			return
+		}
+
+		var nb beer.Beer
+		err = json.NewDecoder(r.Body).Decode(&nb)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(formatJSONError(err.Error()))
+			return
+		}
+		nb.ID = b.ID
+
+		err = service.Update(&nb)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(formatJSONError(err.Error()))
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+
 	})
 }
 
@@ -161,6 +195,21 @@ curl -X "DELETE" "http://localhost:4000/v1/beer/2" \
 */
 func removeBeer(service beer.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//@TODO exercício: implementar este handler
+		vars := mux.Vars(r)
+		id, err := strconv.ParseInt(vars["id"], 10, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(formatJSONError(err.Error()))
+			return
+		}
+
+		err = service.Remove(id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(formatJSONError(err.Error()))
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+
 	})
 }
